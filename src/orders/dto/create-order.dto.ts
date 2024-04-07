@@ -5,5 +5,5 @@ export class CreateOrderDto {
   name: string;
   items: OrderItem[];
   description: string;
-  status: OrderStatus.RECEIVED;
+  status: OrderStatus;
 }
