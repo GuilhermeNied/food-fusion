@@ -4,6 +4,6 @@ import { OrderStatus } from '../enum/OrderStatus';
 export class CreateOrderDto {
   name: string;
   items: OrderItem[];
-  description: string;
-  status: OrderStatus;
+  description?: string;
+  status?: OrderStatus;
 }
