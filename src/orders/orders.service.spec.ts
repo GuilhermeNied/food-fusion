@@ -3,8 +3,9 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersRepository } from './orders.repository';
 import { InvalidOrderException } from './exceptions/invalid-order.exception';
+import { NotFoundOrderException } from './exceptions/not-found-order.exception';
 
-describe('OrdersService', () => {
+describe.only('OrdersService', () => {
   let ordersService: OrdersService;
   let ordersRepository: OrdersRepository;
 
@@ -71,6 +72,34 @@ describe('OrdersService', () => {
 
     // THEN
     expect(createOrder).toThrow(InvalidOrderException);
+    expect(ordersRepositorySpy).not.toHaveBeenCalled;
+    expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should be delete a order by number', () => {
+    // GIVEN
+    const ordersRepositorySpy = jest.spyOn(ordersRepository, 'delete');
+    const number: number = 1;
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+
+    // WHEN
+    ordersService.delete(number);
+
+    // THEN
+    expect(ordersRepositorySpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not delete a order when number not exists', () => {
+    // GIVEN
+    const ordersRepositorySpy = jest.spyOn(ordersRepository, 'delete');
+    const number: number = 1;
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(false);
+
+    // WHEN
+    const deleteOrder = () => ordersService.delete(number);
+
+    // THEN
+    expect(deleteOrder).toThrow(NotFoundOrderException);
     expect(ordersRepositorySpy).not.toHaveBeenCalled;
     expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
   });

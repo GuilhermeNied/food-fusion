@@ -4,6 +4,7 @@ import { Order } from './entities/order.entity';
 import { OrderStatus } from './enum/OrderStatus';
 import { OrdersRepository } from './orders.repository';
 import { InvalidOrderException } from './exceptions/invalid-order.exception';
+import { NotFoundOrderException } from './exceptions/not-found-order.exception';
 
 @Injectable()
 export class OrdersService {
@@ -19,7 +20,25 @@ export class OrdersService {
     this.ordersRepository.create(order);
   }
 
-  private toOrderEntity(createOrderDto: CreateOrderDto) {
+  delete(number: number): void {
+    if (!this.isOrderExits(number)) {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    }
+    this.ordersRepository.delete(number);
+  }
+
+  findByNumber(number: number): Order {
+    const foundOrder = this.ordersRepository.findByNumber(number);
+    return foundOrder;
+  }
+
+  private isOrderExits(number: number): boolean {
+    return this.ordersRepository.exists(number);
+  }
+
+  private toOrderEntity(createOrderDto: CreateOrderDto): Order {
     const order = new Order();
     order.name = createOrderDto.name;
     order.items = createOrderDto.items;
