@@ -7,6 +7,7 @@ import { InvalidOrderException } from './exceptions/invalid-order.exception';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './enum/OrderStatus';
 import { NotFoundOrderException } from './exceptions/not-found-order.exception';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 describe('OrdersController', () => {
   let ordersController: OrdersController;
@@ -80,7 +81,7 @@ describe('OrdersController', () => {
     expect(createOrder).toThrow(InvalidOrderException);
   });
 
-  it('shoud be find an order by number', () => {
+  it('should be find an order by number', () => {
     // GIVEN
     const number: string = '1';
     const serviceResult: Order = {
@@ -103,7 +104,7 @@ describe('OrdersController', () => {
     expect(result).toEqual(serviceResult);
   });
 
-  it('shoud be find an order by number', () => {
+  it('should be find an order by number', () => {
     // GIVEN
     const number: string = '1';
 
@@ -114,7 +115,47 @@ describe('OrdersController', () => {
     expect(result).toThrow(NotFoundOrderException);
   });
 
-  it('shoud be delete an order by number', () => {
+  it('should be update an order by number', () => {
+    //GIVEN
+    const number: string = '1';
+    const updateOrderDto: UpdateOrderDto = {
+      name: 'Teste',
+      items: [{ id: '123', name: 'Teste' }],
+      description: 'Teste',
+      status: OrderStatus.CANCELED,
+    };
+    const ordersServiceSpy = jest.spyOn(ordersService, 'update');
+
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+
+    //WHEN
+    ordersController.update(number, updateOrderDto);
+
+    //THEN
+    expect(ordersServiceSpy).toHaveBeenCalledWith(
+      Number(number),
+      updateOrderDto,
+    );
+  });
+
+  it('should not update an order by number', () => {
+    //GIVEN
+    const number: string = '1';
+    const updateOrderDto: UpdateOrderDto = {
+      name: 'Teste',
+      items: [{ id: '123', name: 'Teste' }],
+      description: 'Teste',
+      status: OrderStatus.DONE,
+    };
+
+    //WHEN
+    const result = () => ordersController.update(number, updateOrderDto);
+
+    //THEN
+    expect(result).toThrow(NotFoundOrderException);
+  });
+
+  it('should be delete an order by number', () => {
     //GIVEN
     const number: string = '1';
     const ordersServiceSpy = jest.spyOn(ordersService, 'delete');
@@ -128,7 +169,7 @@ describe('OrdersController', () => {
     expect(ordersServiceSpy).toHaveBeenCalledWith(Number(number));
   });
 
-  it('shoud be delete an order by number', () => {
+  it('should not delete an order by number', () => {
     //GIVEN
     const number: string = '1';
 

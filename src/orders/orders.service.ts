@@ -5,6 +5,7 @@ import { OrderStatus } from './enum/OrderStatus';
 import { OrdersRepository } from './orders.repository';
 import { InvalidOrderException } from './exceptions/invalid-order.exception';
 import { NotFoundOrderException } from './exceptions/not-found-order.exception';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -20,15 +21,6 @@ export class OrdersService {
     this.ordersRepository.create(order);
   }
 
-  delete(number: number): void {
-    if (!this.isOrderExits(number)) {
-      throw new NotFoundOrderException(
-        `Order with number ${number} not found.`,
-      );
-    }
-    this.ordersRepository.delete(number);
-  }
-
   findByNumber(number: number): Order {
     if (!this.isOrderExits(number)) {
       throw new NotFoundOrderException(
@@ -37,6 +29,25 @@ export class OrdersService {
     }
 
     return this.ordersRepository.findByNumber(number);
+  }
+
+  update(number: number, updateOrderDto: UpdateOrderDto): void {
+    if (!this.isOrderExits(number)) {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    }
+    const order: Order = this.toUpdateOrderEntity(updateOrderDto);
+    return this.ordersRepository.update(number, order);
+  }
+
+  delete(number: number): void {
+    if (!this.isOrderExits(number)) {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    }
+    this.ordersRepository.delete(number);
   }
 
   private isOrderExits(number: number): boolean {
@@ -49,6 +60,27 @@ export class OrdersService {
     order.items = createOrderDto.items;
     order.description = createOrderDto.description;
     order.status = OrderStatus.RECEIVED;
+    return order;
+  }
+
+  private toUpdateOrderEntity(updateOrderDto: UpdateOrderDto): Order {
+    const order = new Order();
+    if (updateOrderDto.name !== undefined && updateOrderDto.name !== null) {
+      order.name = updateOrderDto.name;
+    }
+    if (updateOrderDto.items !== undefined && updateOrderDto.items !== null) {
+      order.items = updateOrderDto.items;
+    }
+
+    if (
+      updateOrderDto.description !== undefined &&
+      updateOrderDto.description !== null
+    ) {
+      order.description = updateOrderDto.description;
+    }
+    if (updateOrderDto.status !== undefined && updateOrderDto.status !== null) {
+      order.status = updateOrderDto.status;
+    }
     return order;
   }
 

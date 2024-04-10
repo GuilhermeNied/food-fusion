@@ -6,6 +6,7 @@ import { InvalidOrderException } from './exceptions/invalid-order.exception';
 import { NotFoundOrderException } from './exceptions/not-found-order.exception';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './enum/OrderStatus';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 describe('OrdersService', () => {
   let ordersService: OrdersService;
@@ -113,6 +114,47 @@ describe('OrdersService', () => {
     // THEN
     expect(result).toThrow(NotFoundOrderException);
     expect(ordersRepositorySpy).not.toHaveBeenCalled();
+    expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should be update a order', () => {
+    // GIVEN
+    const ordersRepositorySpy = jest.spyOn(ordersRepository, 'update');
+    const updateOrderDto: UpdateOrderDto = {
+      name: 'Teste',
+      items: [{ id: '123', name: 'Teste' }],
+      description: 'Teste',
+      status: OrderStatus.CANCELED,
+    };
+    const number: number = 1;
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+
+    // WHEN
+    ordersService.update(number, updateOrderDto);
+
+    // THEN
+    expect(ordersRepositorySpy).toHaveBeenCalled;
+    expect(ordersRepositorySpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not update a order when number not exists', () => {
+    // GIVEN
+    const ordersRepositorySpy = jest.spyOn(ordersRepository, 'update');
+    const updateOrderDto: UpdateOrderDto = {
+      name: 'Teste',
+      items: [{ id: '123', name: 'Teste' }],
+      description: 'Teste',
+      status: OrderStatus.CANCELED,
+    };
+    const number: number = 1;
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(false);
+
+    // WHEN
+    const updateOrder = () => ordersService.update(number, updateOrderDto);
+
+    // THEN
+    expect(updateOrder).toThrow(NotFoundOrderException);
+    expect(ordersRepositorySpy).not.toHaveBeenCalled;
     expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
   });
 
