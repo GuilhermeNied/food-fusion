@@ -12,7 +12,7 @@ export class OrdersController {
   }
 
   @Get(':number')
-  getByNumber(@Param('number') number: string) {
+  findByNumber(@Param('number') number: string) {
     return this.ordersService.findByNumber(Number(number));
   }
 

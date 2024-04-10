@@ -96,7 +96,7 @@ describe('OrdersController', () => {
       .mockImplementation(() => serviceResult);
 
     // WHEN
-    const result: Order = ordersController.getByNumber(number);
+    const result: Order = ordersController.findByNumber(number);
     console.log(result);
 
     // THEN
@@ -108,7 +108,7 @@ describe('OrdersController', () => {
     const number: string = '1';
 
     // WHEN
-    const result = () => ordersController.getByNumber(number);
+    const result = () => ordersController.findByNumber(number);
 
     // THEN
     expect(result).toThrow(NotFoundOrderException);
