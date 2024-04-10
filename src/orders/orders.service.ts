@@ -8,7 +8,7 @@ import { NotFoundOrderException } from './exceptions/not-found-order.exception';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) { }
+  constructor(private readonly ordersRepository: OrdersRepository) {}
 
   create(createOrderDto: CreateOrderDto): void {
     if (this.isInvalidOrder(createOrderDto)) {
