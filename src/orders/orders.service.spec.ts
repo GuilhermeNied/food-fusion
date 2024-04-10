@@ -4,8 +4,10 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersRepository } from './orders.repository';
 import { InvalidOrderException } from './exceptions/invalid-order.exception';
 import { NotFoundOrderException } from './exceptions/not-found-order.exception';
+import { Order } from './entities/order.entity';
+import { OrderStatus } from './enum/OrderStatus';
 
-describe.only('OrdersService', () => {
+describe('OrdersService', () => {
   let ordersService: OrdersService;
   let ordersRepository: OrdersRepository;
 
@@ -73,6 +75,44 @@ describe.only('OrdersService', () => {
     // THEN
     expect(createOrder).toThrow(InvalidOrderException);
     expect(ordersRepositorySpy).not.toHaveBeenCalled;
+    expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should be find a order by number', () => {
+    // GIVEN
+    const number: number = 1;
+    const repositoryResult: Order = {
+      number: 1,
+      name: 'Teste',
+      description: 'Teste',
+      items: [{ id: '123', name: 'Teste' }],
+      status: OrderStatus.RECEIVED,
+    };
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+
+    jest
+      .spyOn(ordersRepository, 'findByNumber')
+      .mockImplementation(() => repositoryResult);
+
+    // WHEN
+    const result: Order = ordersService.findByNumber(number);
+
+    // THEN
+    expect(result).toEqual(repositoryResult);
+  });
+
+  it('should not find a order by number when order not exists', () => {
+    // GIVEN
+    const number: number = 1;
+    const ordersRepositorySpy = jest.spyOn(ordersRepository, 'findByNumber');
+    jest.spyOn(ordersRepository, 'exists').mockReturnValue(false);
+
+    // WHEN
+    const result = () => ordersService.findByNumber(number);
+
+    // THEN
+    expect(result).toThrow(NotFoundOrderException);
+    expect(ordersRepositorySpy).not.toHaveBeenCalled();
     expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
   });
 

@@ -8,7 +8,7 @@ import { NotFoundOrderException } from './exceptions/not-found-order.exception';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(private readonly ordersRepository: OrdersRepository) { }
 
   create(createOrderDto: CreateOrderDto): void {
     if (this.isInvalidOrder(createOrderDto)) {
@@ -30,8 +30,13 @@ export class OrdersService {
   }
 
   findByNumber(number: number): Order {
-    const foundOrder = this.ordersRepository.findByNumber(number);
-    return foundOrder;
+    if (!this.isOrderExits(number)) {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    }
+
+    return this.ordersRepository.findByNumber(number);
   }
 
   private isOrderExits(number: number): boolean {
