@@ -9,7 +9,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(private readonly ordersRepository: OrdersRepository) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<void> {
     if (this.isInvalidOrder(createOrderDto)) {
@@ -21,18 +21,21 @@ export class OrdersService {
     await this.ordersRepository.create(order);
   }
 
-  findByNumber(number: number): Order {
-    if (!this.isOrderExits(number)) {
+  async findByNumber(number: number): Promise<Order> {
+    const isOrderExists = await this.isOrderExits(number);
+    if (!isOrderExists) {
       throw new NotFoundOrderException(
         `Order with number ${number} not found.`,
       );
     }
 
-    return this.ordersRepository.findByNumber(number);
+    return await this.ordersRepository.findByNumber(number);
   }
 
-  update(number: number, updateOrderDto: UpdateOrderDto): void {
-    if (!this.isOrderExits(number)) {
+  async update(number: number, updateOrderDto: UpdateOrderDto): Promise<void> {
+    const isOrderExists = await this.isOrderExits(number);
+
+    if (isOrderExists) {
       throw new NotFoundOrderException(
         `Order with number ${number} not found.`,
       );
@@ -41,8 +44,10 @@ export class OrdersService {
     return this.ordersRepository.update(number, order);
   }
 
-  delete(number: number): void {
-    if (!this.isOrderExits(number)) {
+  async delete(number: number): Promise<void> {
+    const isOrderExists = await this.isOrderExits(number);
+
+    if (isOrderExists) {
       throw new NotFoundOrderException(
         `Order with number ${number} not found.`,
       );
@@ -54,8 +59,9 @@ export class OrdersService {
     return await this.ordersRepository.getAll();
   }
 
-  private isOrderExits(number: number): boolean {
-    return this.ordersRepository.exists(number);
+  private async isOrderExits(number: number): Promise<boolean> {
+    console.log(await this.ordersRepository.exists(number));
+    return await this.ordersRepository.exists(number);
   }
 
   private toOrderEntity(createOrderDto: CreateOrderDto): Order {

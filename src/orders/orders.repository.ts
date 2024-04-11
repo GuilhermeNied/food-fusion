@@ -3,10 +3,11 @@ import { Order } from './entities/order.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OrderStatus as PrismaOrderStatus } from '@prisma/client';
 import { OrderStatus } from './enum/OrderStatus';
+import { Or } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class OrdersRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
   private statusMapping = {
     [OrderStatus.RECEIVED]: PrismaOrderStatus.RECEIVED,
     [OrderStatus.DOING]: PrismaOrderStatus.DOING,
@@ -30,14 +31,35 @@ export class OrdersRepository {
     });
   }
 
-  findByNumber(number: number): Order {
-    return new Order();
+  async findByNumber(number: number): Promise<Order> {
+    const orderData = await this.prismaService.order.findFirst({
+      where: {
+        number,
+      },
+      include: {
+        items: true,
+      },
+    });
+    const order: Order = {
+      number: orderData.number,
+      name: orderData.name,
+      items: orderData.items,
+      description: orderData.description,
+      status: this.statusMapping[orderData.status],
+    };
+    return order;
   }
-  exists(number: number): boolean {
-    return false;
+  async exists(number: number): Promise<boolean> {
+    const isOrderExists = await this.prismaService.order.findFirst({
+      where: {
+        number,
+      },
+    });
+
+    return !!isOrderExists;
   }
-  update(number: number, order: Order): void {}
-  delete(number: number): void {}
+  update(number: number, order: Order): void { }
+  delete(number: number): void { }
 
   async getAll() {
     return await this.prismaService.order.findMany({
