@@ -35,7 +35,7 @@ export class OrdersService {
   async update(number: number, updateOrderDto: UpdateOrderDto): Promise<void> {
     const isOrderExists = await this.isOrderExits(number);
 
-    if (isOrderExists) {
+    if (!isOrderExists) {
       throw new NotFoundOrderException(
         `Order with number ${number} not found.`,
       );
@@ -47,12 +47,12 @@ export class OrdersService {
   async delete(number: number): Promise<void> {
     const isOrderExists = await this.isOrderExits(number);
 
-    if (isOrderExists) {
+    if (!isOrderExists) {
       throw new NotFoundOrderException(
         `Order with number ${number} not found.`,
       );
     }
-    this.ordersRepository.delete(number);
+    await this.ordersRepository.delete(number);
   }
 
   async getAll() {
@@ -60,7 +60,6 @@ export class OrdersService {
   }
 
   private async isOrderExits(number: number): Promise<boolean> {
-    console.log(await this.ordersRepository.exists(number));
     return await this.ordersRepository.exists(number);
   }
 

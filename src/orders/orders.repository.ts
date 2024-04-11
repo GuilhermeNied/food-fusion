@@ -32,7 +32,7 @@ export class OrdersRepository {
   }
 
   async findByNumber(number: number): Promise<Order> {
-    const orderData = await this.prismaService.order.findFirst({
+    const order = await this.prismaService.order.findFirst({
       where: {
         number,
       },
@@ -40,14 +40,15 @@ export class OrdersRepository {
         items: true,
       },
     });
-    const order: Order = {
-      number: orderData.number,
-      name: orderData.name,
-      items: orderData.items,
-      description: orderData.description,
-      status: this.statusMapping[orderData.status],
+    const parsedOrder: Order = {
+      number: order.number,
+      name: order.name,
+      items: order.items,
+      description: order.description,
+      status: this.statusMapping[order.status],
     };
-    return order;
+
+    return parsedOrder;
   }
   async exists(number: number): Promise<boolean> {
     const isOrderExists = await this.prismaService.order.findFirst({
@@ -58,8 +59,22 @@ export class OrdersRepository {
 
     return !!isOrderExists;
   }
+
   update(number: number, order: Order): void { }
-  delete(number: number): void { }
+
+  async delete(number: number): Promise<void> {
+    await this.prismaService.orderItem.deleteMany({
+      where: {
+        orderId: number,
+      },
+    });
+
+    await this.prismaService.order.delete({
+      where: {
+        number,
+      },
+    });
+  }
 
   async getAll() {
     return await this.prismaService.order.findMany({

@@ -98,7 +98,6 @@ describe('OrdersController', () => {
 
     // WHEN
     const result: Order = ordersController.findByNumber(number);
-    console.log(result);
 
     // THEN
     expect(result).toEqual(serviceResult);
