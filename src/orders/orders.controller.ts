@@ -13,7 +13,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
@@ -23,6 +23,11 @@ export class OrdersController {
   @Get(':number')
   findByNumber(@Param('number') number: string) {
     return this.ordersService.findByNumber(Number(number));
+  }
+
+  @Get()
+  getAll() {
+    return this.ordersService.getAll();
   }
 
   @Patch(':number')

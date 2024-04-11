@@ -9,16 +9,16 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(private readonly ordersRepository: OrdersRepository) { }
 
-  create(createOrderDto: CreateOrderDto): void {
+  async create(createOrderDto: CreateOrderDto): Promise<void> {
     if (this.isInvalidOrder(createOrderDto)) {
       throw new InvalidOrderException(
         'Name must be at least 3 characters long and items are required.',
       );
     }
     const order = this.toOrderEntity(createOrderDto);
-    this.ordersRepository.create(order);
+    await this.ordersRepository.create(order);
   }
 
   findByNumber(number: number): Order {
@@ -48,6 +48,10 @@ export class OrdersService {
       );
     }
     this.ordersRepository.delete(number);
+  }
+
+  async getAll() {
+    return await this.ordersRepository.getAll();
   }
 
   private isOrderExits(number: number): boolean {
