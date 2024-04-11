@@ -9,7 +9,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) { }
+  constructor(private readonly ordersRepository: OrdersRepository) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<void> {
     if (this.isInvalidOrder(createOrderDto)) {

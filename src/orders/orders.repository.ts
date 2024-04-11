@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Order } from './entities/order.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, OrderStatus as PrismaOrderStatus } from '@prisma/client';
+import { OrderStatus as PrismaOrderStatus } from '@prisma/client';
 import { OrderStatus } from './enum/OrderStatus';
 
 @Injectable()
 export class OrdersRepository {
-  constructor(private prismaService: PrismaService) { }
+  constructor(private prismaService: PrismaService) {}
   private statusMapping = {
     [OrderStatus.RECEIVED]: PrismaOrderStatus.RECEIVED,
     [OrderStatus.DOING]: PrismaOrderStatus.DOING,
@@ -36,8 +36,8 @@ export class OrdersRepository {
   exists(number: number): boolean {
     return false;
   }
-  update(number: number, order: Order): void { }
-  delete(number: number): void { }
+  update(number: number, order: Order): void {}
+  delete(number: number): void {}
 
   async getAll() {
     return await this.prismaService.order.findMany({
