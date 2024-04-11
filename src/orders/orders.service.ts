@@ -87,9 +87,11 @@ export class OrdersService {
     ) {
       order.description = updateOrderDto.description;
     }
+
     if (updateOrderDto.status !== undefined && updateOrderDto.status !== null) {
       order.status = updateOrderDto.status;
     }
+
     return order;
   }
 

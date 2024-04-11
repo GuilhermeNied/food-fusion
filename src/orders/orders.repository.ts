@@ -3,16 +3,22 @@ import { Order } from './entities/order.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OrderStatus as PrismaOrderStatus } from '@prisma/client';
 import { OrderStatus } from './enum/OrderStatus';
-import { Or } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class OrdersRepository {
   constructor(private prismaService: PrismaService) { }
-  private statusMapping = {
+  private orderStatusMapping = {
     [OrderStatus.RECEIVED]: PrismaOrderStatus.RECEIVED,
     [OrderStatus.DOING]: PrismaOrderStatus.DOING,
     [OrderStatus.DONE]: PrismaOrderStatus.DONE,
     [OrderStatus.CANCELED]: PrismaOrderStatus.CANCELED,
+  };
+
+  private prismaStatusMapping = {
+    [PrismaOrderStatus.RECEIVED]: OrderStatus.RECEIVED,
+    [PrismaOrderStatus.DOING]: OrderStatus.DOING,
+    [PrismaOrderStatus.DONE]: OrderStatus.DONE,
+    [PrismaOrderStatus.CANCELED]: OrderStatus.CANCELED,
   };
 
   async create(order: Order): Promise<void> {
@@ -45,7 +51,7 @@ export class OrdersRepository {
       name: order.name,
       items: order.items,
       description: order.description,
-      status: this.statusMapping[order.status],
+      status: this.convertPrimsaStatus(order.status),
     };
 
     return parsedOrder;
@@ -60,7 +66,33 @@ export class OrdersRepository {
     return !!isOrderExists;
   }
 
-  update(number: number, order: Order): void { }
+  async update(number: number, order: Order): Promise<void> {
+    console.log(order);
+    const { name, items, description, status } = order;
+
+    await this.prismaService.order.update({
+      where: {
+        number,
+      },
+      data: {
+        name,
+        description,
+        status: this.convertOrderStatus(status),
+      },
+    });
+
+    items?.forEach(async (item) => {
+      await this.prismaService.orderItem.updateMany({
+        where: {
+          orderId: number,
+          id: item.id,
+        },
+        data: {
+          name: item.name,
+        },
+      });
+    });
+  }
 
   async delete(number: number): Promise<void> {
     await this.prismaService.orderItem.deleteMany({
@@ -85,6 +117,9 @@ export class OrdersRepository {
   }
 
   private convertOrderStatus(status: OrderStatus): PrismaOrderStatus {
-    return this.statusMapping[status];
+    return this.orderStatusMapping[status];
+  }
+  private convertPrimsaStatus(status: PrismaOrderStatus): OrderStatus {
+    return this.prismaStatusMapping[status];
   }
 }
