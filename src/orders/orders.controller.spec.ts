@@ -35,6 +35,7 @@ describe('OrdersController', () => {
         {
           id: '1',
           name: 'TesteItem',
+          quantity: 1,
         },
       ],
     };
@@ -70,6 +71,7 @@ describe('OrdersController', () => {
         {
           id: '1',
           name: 'TesteItem',
+          quantity: 1,
         },
       ],
     };
@@ -81,23 +83,23 @@ describe('OrdersController', () => {
     expect(createOrder).toThrow(InvalidOrderException);
   });
 
-  it('should be find an order by number', () => {
+  it('should be find an order by number', async () => {
     // GIVEN
     const number: string = '1';
     const serviceResult: Order = {
       number: 1,
       name: 'Teste',
       description: 'Teste',
-      items: [{ id: '123', name: 'Teste' }],
+      items: [{ id: '123', name: 'Teste', quantity: 1 }],
       status: OrderStatus.DOING,
     };
 
     jest
       .spyOn(ordersService, 'findByNumber')
-      .mockImplementation(() => serviceResult);
+      .mockImplementation(() => Promise.resolve(serviceResult));
 
     // WHEN
-    const result: Order = ordersController.findByNumber(number);
+    const result: Order = await ordersController.findByNumber(number);
 
     // THEN
     expect(result).toEqual(serviceResult);
@@ -119,13 +121,15 @@ describe('OrdersController', () => {
     const number: string = '1';
     const updateOrderDto: UpdateOrderDto = {
       name: 'Teste',
-      items: [{ id: '123', name: 'Teste' }],
+      items: [{ id: '123', name: 'Teste', quantity: 1 }],
       description: 'Teste',
       status: OrderStatus.CANCELED,
     };
     const ordersServiceSpy = jest.spyOn(ordersService, 'update');
 
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(true));
 
     //WHEN
     ordersController.update(number, updateOrderDto);
@@ -142,7 +146,7 @@ describe('OrdersController', () => {
     const number: string = '1';
     const updateOrderDto: UpdateOrderDto = {
       name: 'Teste',
-      items: [{ id: '123', name: 'Teste' }],
+      items: [{ id: '123', name: 'Teste', quantity: 1 }],
       description: 'Teste',
       status: OrderStatus.DONE,
     };
@@ -159,7 +163,9 @@ describe('OrdersController', () => {
     const number: string = '1';
     const ordersServiceSpy = jest.spyOn(ordersService, 'delete');
 
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(true));
 
     //WHEN
     ordersController.delete(number);

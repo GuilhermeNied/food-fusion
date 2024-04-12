@@ -8,7 +8,7 @@ import { Order } from './entities/order.entity';
 import { OrderStatus } from './enum/OrderStatus';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
-describe('OrdersService', () => {
+describe.only('OrdersService', () => {
   let ordersService: OrdersService;
   let ordersRepository: OrdersRepository;
 
@@ -31,6 +31,7 @@ describe('OrdersService', () => {
         {
           id: '1',
           name: 'Teste',
+          quantity: 1,
         },
       ],
     };
@@ -79,24 +80,26 @@ describe('OrdersService', () => {
     expect(ordersRepositorySpy).toHaveBeenCalledTimes(0);
   });
 
-  it('should be find a order by number', () => {
+  it('should be find a order by number', async () => {
     // GIVEN
     const number: number = 1;
     const repositoryResult: Order = {
       number: 1,
       name: 'Teste',
       description: 'Teste',
-      items: [{ id: '123', name: 'Teste' }],
+      items: [{ id: '123', name: 'Teste', quantity: 1 }],
       status: OrderStatus.RECEIVED,
     };
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(true));
 
     jest
       .spyOn(ordersRepository, 'findByNumber')
-      .mockImplementation(() => repositoryResult);
+      .mockImplementation(() => Promise.resolve(repositoryResult));
 
     // WHEN
-    const result: Order = ordersService.findByNumber(number);
+    const result: Order = await ordersService.findByNumber(number);
 
     // THEN
     expect(result).toEqual(repositoryResult);
@@ -106,7 +109,9 @@ describe('OrdersService', () => {
     // GIVEN
     const number: number = 1;
     const ordersRepositorySpy = jest.spyOn(ordersRepository, 'findByNumber');
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(false);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(false));
 
     // WHEN
     const result = () => ordersService.findByNumber(number);
@@ -122,12 +127,14 @@ describe('OrdersService', () => {
     const ordersRepositorySpy = jest.spyOn(ordersRepository, 'update');
     const updateOrderDto: UpdateOrderDto = {
       name: 'Teste',
-      items: [{ id: '123', name: 'Teste' }],
+      items: [{ id: '123', name: 'Teste', quantity: 1 }],
       description: 'Teste',
       status: OrderStatus.CANCELED,
     };
     const number: number = 1;
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(true));
 
     // WHEN
     ordersService.update(number, updateOrderDto);
@@ -142,12 +149,14 @@ describe('OrdersService', () => {
     const ordersRepositorySpy = jest.spyOn(ordersRepository, 'update');
     const updateOrderDto: UpdateOrderDto = {
       name: 'Teste',
-      items: [{ id: '123', name: 'Teste' }],
+      items: [{ id: '123', name: 'Teste', quantity: 1 }],
       description: 'Teste',
       status: OrderStatus.CANCELED,
     };
     const number: number = 1;
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(false);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(false));
 
     // WHEN
     const updateOrder = () => ordersService.update(number, updateOrderDto);
@@ -162,7 +171,9 @@ describe('OrdersService', () => {
     // GIVEN
     const ordersRepositorySpy = jest.spyOn(ordersRepository, 'delete');
     const number: number = 1;
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(true);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(true));
 
     // WHEN
     ordersService.delete(number);
@@ -175,7 +186,9 @@ describe('OrdersService', () => {
     // GIVEN
     const ordersRepositorySpy = jest.spyOn(ordersRepository, 'delete');
     const number: number = 1;
-    jest.spyOn(ordersRepository, 'exists').mockReturnValue(false);
+    jest
+      .spyOn(ordersRepository, 'exists')
+      .mockReturnValue(Promise.resolve(false));
 
     // WHEN
     const deleteOrder = () => ordersService.delete(number);
