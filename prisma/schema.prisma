@@ -16,10 +16,11 @@ model Order {
 }
 
 model OrderItem {
-  id      String @id @default(uuid())
-  name    String
-  orderId Int
-  order   Order  @relation(fields: [orderId], references: [number])
+  id       String @id @default(uuid())
+  name     String
+  orderId  Int
+  order    Order  @relation(fields: [orderId], references: [number])
+  quantity Int
 }
 
 enum OrderStatus {

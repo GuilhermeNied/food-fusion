@@ -6,7 +6,7 @@ import { OrderStatus } from './enum/OrderStatus';
 
 @Injectable()
 export class OrdersRepository {
-  constructor(private prismaService: PrismaService) { }
+  constructor(private prismaService: PrismaService) {}
   private orderStatusMapping = {
     [OrderStatus.RECEIVED]: PrismaOrderStatus.RECEIVED,
     [OrderStatus.DOING]: PrismaOrderStatus.DOING,
@@ -67,7 +67,6 @@ export class OrdersRepository {
   }
 
   async update(number: number, order: Order): Promise<void> {
-    console.log(order);
     const { name, items, description, status } = order;
 
     await this.prismaService.order.update({
@@ -89,6 +88,7 @@ export class OrdersRepository {
         },
         data: {
           name: item.name,
+          quantity: item.quantity,
         },
       });
     });
