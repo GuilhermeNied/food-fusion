@@ -9,7 +9,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(private readonly ordersRepository: OrdersRepository) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<void> {
     if (this.isInvalidOrder(createOrderDto)) {
@@ -60,6 +60,7 @@ export class OrdersService {
   }
 
   private async isOrderExits(number: number): Promise<boolean> {
+    console.log('Teste', this.ordersRepository.exists(number));
     return await this.ordersRepository.exists(number);
   }
 

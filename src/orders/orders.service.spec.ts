@@ -7,14 +7,15 @@ import { NotFoundOrderException } from './exceptions/not-found-order.exception';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './enum/OrderStatus';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
-describe.only('OrdersService', () => {
+describe('OrdersService', () => {
   let ordersService: OrdersService;
   let ordersRepository: OrdersRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OrdersService, OrdersRepository],
+      providers: [OrdersService, OrdersRepository, PrismaService],
     }).compile();
 
     ordersService = module.get<OrdersService>(OrdersService);
