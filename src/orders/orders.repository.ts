@@ -26,7 +26,7 @@ export class OrdersRepository {
     await this.prismaService.order.create({
       data: {
         name,
-        description: description ? description : '',
+        description,
         status: this.convertOrderStatus(status),
         items: {
           createMany: {

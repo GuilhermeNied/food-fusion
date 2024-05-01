@@ -46,7 +46,6 @@ describe('OrdersService', () => {
     const ordersRepositorySpy = jest.spyOn(ordersRepository, 'create');
     const order: CreateOrderDto = {
       name: 'Teste',
-      description: 'Teste',
       items: [
         {
           id: '1',
