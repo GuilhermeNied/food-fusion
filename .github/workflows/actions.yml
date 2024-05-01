@@ -37,7 +37,7 @@ jobs:
         DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}?schema=public
     
     - name: Push Prisma schema to database
-      run: npx prisma db push --preview-feature
+      run: npx prisma db push
       env:
         DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}?schema=public
 
