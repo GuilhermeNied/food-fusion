@@ -13,7 +13,6 @@ import { PrismaService } from '../prisma/prisma.service';
 describe('OrdersController', () => {
   let ordersController: OrdersController;
   let ordersService: OrdersService;
-  let ordersRepository: OrdersRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,7 +22,6 @@ describe('OrdersController', () => {
 
     ordersController = module.get<OrdersController>(OrdersController);
     ordersService = module.get<OrdersService>(OrdersService);
-    ordersRepository = module.get<OrdersRepository>(OrdersRepository);
   });
 
   it('should be create an order', () => {
@@ -48,7 +46,7 @@ describe('OrdersController', () => {
     expect(ordersServiceSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should be not create an order when items is empty', () => {
+  it('should be not create an order when do not have items', async () => {
     // GIVEN
     const order: CreateOrderDto = {
       name: 'Teste',
@@ -60,10 +58,10 @@ describe('OrdersController', () => {
     const createOrder = () => ordersController.create(order);
 
     // THEN
-    expect(createOrder).toThrow(InvalidOrderException);
+    await expect(createOrder()).rejects.toThrow(InvalidOrderException);
   });
 
-  it('should not be create an order when name have length lass than 3', () => {
+  it('should not be create an order when name have length lass than 3', async () => {
     // GIVEN
     const order: CreateOrderDto = {
       name: 'T',
@@ -81,10 +79,10 @@ describe('OrdersController', () => {
     const createOrder = () => ordersController.create(order);
 
     // THEN
-    expect(createOrder).toThrow(InvalidOrderException);
+    await expect(createOrder).rejects.toThrow(InvalidOrderException);
   });
 
-  it('should be find an order by number', async () => {
+  it('should be find an order', async () => {
     // GIVEN
     const number: string = '1';
     const serviceResult: Order = {
@@ -96,8 +94,8 @@ describe('OrdersController', () => {
     };
 
     jest
-      .spyOn(ordersService, 'findByNumber')
-      .mockImplementation(() => Promise.resolve(serviceResult));
+      .spyOn(ordersController, 'findByNumber')
+      .mockResolvedValue(serviceResult);
 
     // WHEN
     const result: Order = await ordersController.findByNumber(number);
@@ -106,7 +104,7 @@ describe('OrdersController', () => {
     expect(result).toEqual(serviceResult);
   });
 
-  it('should be find an order by number', () => {
+  it('should be not find an order', () => {
     // GIVEN
     const number: string = '1';
 
@@ -114,10 +112,10 @@ describe('OrdersController', () => {
     const result = () => ordersController.findByNumber(number);
 
     // THEN
-    expect(result).toThrow(NotFoundOrderException);
+    expect(result).rejects.toThrow(NotFoundOrderException);
   });
 
-  it('should be update an order by number', () => {
+  it('should be update an order', () => {
     //GIVEN
     const number: string = '1';
     const updateOrderDto: UpdateOrderDto = {
@@ -127,10 +125,6 @@ describe('OrdersController', () => {
       status: OrderStatus.CANCELED,
     };
     const ordersServiceSpy = jest.spyOn(ordersService, 'update');
-
-    jest
-      .spyOn(ordersRepository, 'exists')
-      .mockReturnValue(Promise.resolve(true));
 
     //WHEN
     ordersController.update(number, updateOrderDto);
@@ -142,7 +136,7 @@ describe('OrdersController', () => {
     );
   });
 
-  it('should not update an order by number', () => {
+  it('should not update an order when order not exists', () => {
     //GIVEN
     const number: string = '1';
     const updateOrderDto: UpdateOrderDto = {
@@ -156,17 +150,13 @@ describe('OrdersController', () => {
     const result = () => ordersController.update(number, updateOrderDto);
 
     //THEN
-    expect(result).toThrow(NotFoundOrderException);
+    expect(result).rejects.toThrow(NotFoundOrderException);
   });
 
-  it('should be delete an order by number', () => {
+  it('should be delete an order', () => {
     //GIVEN
     const number: string = '1';
     const ordersServiceSpy = jest.spyOn(ordersService, 'delete');
-
-    jest
-      .spyOn(ordersRepository, 'exists')
-      .mockReturnValue(Promise.resolve(true));
 
     //WHEN
     ordersController.delete(number);
@@ -175,14 +165,14 @@ describe('OrdersController', () => {
     expect(ordersServiceSpy).toHaveBeenCalledWith(Number(number));
   });
 
-  it('should not delete an order by number', () => {
+  it('should not delete an order ', () => {
     //GIVEN
     const number: string = '1';
 
     //WHEN
-    const result = () => ordersController.delete(number);
+    const deleteOrder = () => ordersController.delete(number);
 
-    //THEN
-    expect(result).toThrow(NotFoundOrderException);
+    // THEN
+    expect(deleteOrder).rejects.toThrow(NotFoundOrderException);
   });
 });
