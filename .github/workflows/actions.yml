@@ -30,11 +30,19 @@ jobs:
 
     - name: Build the app
       run: npm run build
+
+    - name: Generate Prisma client
+      run: npx prisma generate
+      env:
+        DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}?schema=public
     
     - name: Run Prisma migrations
       run: npx prisma migrate deploy
+
       env:
         DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}?schema=public
+
+    
 
     - name: Run tests
       run: npm run test
