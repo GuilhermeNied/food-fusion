@@ -34,5 +34,9 @@ jobs:
       - name: Set DATABASE_URL environment variable
         run: echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}" >> $GITHUB_ENV
 
+      - name: Apply Prisma Migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
       - name: Run tests
         run: npm test
