@@ -30,6 +30,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+      - run: npm run build
 
       - name: Set DATABASE_URL environment variable
         run: echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}" >> $GITHUB_ENV
