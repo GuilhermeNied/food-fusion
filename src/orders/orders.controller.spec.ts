@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { OrdersRepository } from './orders.repository';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { InvalidOrderException } from './exceptions/invalid-order.exception';
 import { Order } from './entities/order.entity';
@@ -15,9 +14,21 @@ describe('OrdersController', () => {
   let ordersService: OrdersService;
 
   beforeEach(async () => {
+    const ordersServiceMock = {
+      create: jest.fn(),
+      findByNumber: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrdersController],
-      providers: [OrdersService, OrdersRepository, PrismaService],
+      providers: [
+        {
+          provide: OrdersService,
+          useValue: ordersServiceMock,
+        },
+        PrismaService,
+      ],
     }).compile();
 
     ordersController = module.get<OrdersController>(OrdersController);
@@ -37,6 +48,7 @@ describe('OrdersController', () => {
           quantity: 1,
         },
       ],
+      description: 'Teste',
     };
     // WHEN
     ordersController.create(createOrderDto);
@@ -54,11 +66,17 @@ describe('OrdersController', () => {
       items: [],
     };
 
+    jest.spyOn(ordersService, 'create').mockImplementation(async () => {
+      throw new InvalidOrderException(
+        'Name must be at least 3 characters long and items are required.',
+      );
+    });
+
     // WHEN
-    const createOrder = () => ordersController.create(order);
+    const createOrder = async () => ordersController.create(order);
 
     // THEN
-    await expect(createOrder()).rejects.toThrow(InvalidOrderException);
+    await expect(createOrder).rejects.toThrow(InvalidOrderException);
   });
 
   it('should not be create an order when name have length lass than 3', async () => {
@@ -75,8 +93,14 @@ describe('OrdersController', () => {
       ],
     };
 
+    jest.spyOn(ordersService, 'create').mockImplementation(async () => {
+      throw new InvalidOrderException(
+        'Name must be at least 3 characters long and items are required.',
+      );
+    });
+
     // WHEN
-    const createOrder = () => ordersController.create(order);
+    const createOrder = async () => ordersController.create(order);
 
     // THEN
     await expect(createOrder).rejects.toThrow(InvalidOrderException);
@@ -108,6 +132,12 @@ describe('OrdersController', () => {
     // GIVEN
     const number: string = '1';
 
+    jest.spyOn(ordersService, 'findByNumber').mockImplementation(async () => {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    });
+
     // WHEN
     const result = () => ordersController.findByNumber(number);
 
@@ -117,17 +147,32 @@ describe('OrdersController', () => {
 
   it('should be update an order', () => {
     //GIVEN
-    const number: string = '1';
+    const number = 2;
     const updateOrderDto: UpdateOrderDto = {
       name: 'Teste',
       items: [{ id: '123', name: 'Teste', quantity: 1 }],
       description: 'Teste',
       status: OrderStatus.CANCELED,
     };
+
+    const createOrderDto: CreateOrderDto = {
+      name: 'Teste',
+      items: [
+        {
+          id: '',
+          name: 'TesteItem',
+          quantity: 1,
+        },
+      ],
+      description: 'Teste',
+    };
+    ordersController.create(createOrderDto);
     const ordersServiceSpy = jest.spyOn(ordersService, 'update');
 
+    jest.spyOn(ordersService, 'create');
+
     //WHEN
-    ordersController.update(number, updateOrderDto);
+    ordersController.update(number.toString(), updateOrderDto);
 
     //THEN
     expect(ordersServiceSpy).toHaveBeenCalledWith(
@@ -136,7 +181,7 @@ describe('OrdersController', () => {
     );
   });
 
-  it('should not update an order when order not exists', () => {
+  it('should not update an order when order not exists', async () => {
     //GIVEN
     const number: string = '1';
     const updateOrderDto: UpdateOrderDto = {
@@ -146,28 +191,39 @@ describe('OrdersController', () => {
       status: OrderStatus.DONE,
     };
 
+    jest.spyOn(ordersService, 'update').mockImplementation(async () => {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    });
+
     //WHEN
-    const result = () => ordersController.update(number, updateOrderDto);
+    const result = async () => ordersController.update(number, updateOrderDto);
 
     //THEN
-    expect(result).rejects.toThrow(NotFoundOrderException);
+    await expect(result).rejects.toThrow(NotFoundOrderException);
   });
 
-  it('should be delete an order', () => {
-    //GIVEN
+  it('should be delete an order', async () => {
+    // GIVEN
     const number: string = '1';
-    const ordersServiceSpy = jest.spyOn(ordersService, 'delete');
 
-    //WHEN
-    ordersController.delete(number);
+    // WHEN
+    await ordersController.delete(number);
 
-    //THEN
-    expect(ordersServiceSpy).toHaveBeenCalledWith(Number(number));
+    // THEN
+    expect(ordersService.delete).toHaveBeenCalledWith(Number(number));
   });
 
   it('should not delete an order ', () => {
     //GIVEN
     const number: string = '1';
+
+    jest.spyOn(ordersService, 'delete').mockImplementation(async () => {
+      throw new NotFoundOrderException(
+        `Order with number ${number} not found.`,
+      );
+    });
 
     //WHEN
     const deleteOrder = () => ordersController.delete(number);

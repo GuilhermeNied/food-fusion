@@ -53,6 +53,7 @@ describe('OrdersService', () => {
           quantity: 1,
         },
       ],
+      description: 'Teste',
     };
 
     // WHEN
@@ -148,9 +149,8 @@ describe('OrdersService', () => {
       status: OrderStatus.CANCELED,
     };
     const number: number = 1;
-    jest
-      .spyOn(ordersRepository, 'exists')
-      .mockReturnValue(Promise.resolve(true));
+
+    jest.spyOn(ordersRepository, 'exists').mockResolvedValue(true);
 
     // WHEN
     await ordersService.update(number, updateOrderDto);
