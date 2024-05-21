@@ -48,6 +48,7 @@ describe('OrdersService', () => {
       name: 'Teste',
       items: [
         {
+          id: '1',
           name: 'Teste',
           quantity: 1,
         },
