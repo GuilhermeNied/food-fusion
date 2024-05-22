@@ -6,7 +6,7 @@ import { OrderStatus } from './enum/OrderStatus';
 
 @Injectable()
 export class OrdersRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
   private orderStatusMapping = {
     [OrderStatus.RECEIVED]: PrismaOrderStatus.RECEIVED,
     [OrderStatus.DOING]: PrismaOrderStatus.DOING,
@@ -108,11 +108,13 @@ export class OrdersRepository {
     });
   }
 
-  async getAll() {
+  async getPaginate(skip: number, limit: number) {
     return await this.prismaService.order.findMany({
       include: {
         items: true,
       },
+      skip,
+      take: limit,
     });
   }
 

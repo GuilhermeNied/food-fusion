@@ -9,7 +9,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(private readonly ordersRepository: OrdersRepository) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<void> {
     if (this.isInvalidOrder(createOrderDto)) {
@@ -55,8 +55,9 @@ export class OrdersService {
     await this.ordersRepository.delete(number);
   }
 
-  async getAll() {
-    return await this.ordersRepository.getAll();
+  async getPaginate(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    return await this.ordersRepository.getPaginate(skip, limit);
   }
 
   private async isOrderExits(number: number): Promise<boolean> {
