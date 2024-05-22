@@ -55,7 +55,7 @@ export class OrdersService {
     await this.ordersRepository.delete(number);
   }
 
-  async getPaginate(page: number, limit: number) {
+  async getPaginate(page: number, limit: number): Promise<Order[]> {
     const skip = (page - 1) * limit;
     return await this.ordersRepository.getPaginate(skip, limit);
   }

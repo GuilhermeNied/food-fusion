@@ -108,7 +108,7 @@ export class OrdersRepository {
     });
   }
 
-  async getPaginate(skip: number, limit: number) {
+  async getPaginate(skip: number, limit: number): Promise<any> {
     return await this.prismaService.order.findMany({
       include: {
         items: true,

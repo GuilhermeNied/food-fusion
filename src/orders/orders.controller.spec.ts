@@ -19,6 +19,7 @@ describe('OrdersController', () => {
       findByNumber: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      getPaginate: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrdersController],
@@ -143,6 +144,39 @@ describe('OrdersController', () => {
 
     // THEN
     expect(result).rejects.toThrow(NotFoundOrderException);
+  });
+
+  it('should paginate orders correctly with a limit of 2 when there are 3 orders in total', async () => {
+    // GIVEN
+    const pagination = { page: 1, limit: 2 };
+    const orders: Order[] = [
+      {
+        number: 1,
+        name: 'Teste',
+        description: 'Teste',
+        items: [{ id: '123', name: 'Teste', quantity: 1 }],
+        status: OrderStatus.DOING,
+      },
+      {
+        number: 2,
+        name: 'Teste',
+        description: 'Teste',
+        items: [{ id: '456', name: 'Teste', quantity: 1 }],
+        status: OrderStatus.DOING,
+      },
+    ];
+
+    jest.spyOn(ordersService, 'getPaginate').mockResolvedValue(orders);
+
+    // WHEN
+    const result: Order[] = await ordersController.getPaginate(pagination);
+
+    // THEN
+    expect(result).toHaveLength(2);
+    expect(ordersService.getPaginate).toHaveBeenCalledWith(
+      pagination.page,
+      pagination.limit,
+    );
   });
 
   it('should be update an order', () => {

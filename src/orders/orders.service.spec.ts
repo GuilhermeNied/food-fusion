@@ -20,6 +20,7 @@ describe('OrdersService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       exists: jest.fn(),
+      getPaginate: jest.fn(),
     };
 
     const prismaServiceMock = {};
@@ -121,6 +122,46 @@ describe('OrdersService', () => {
 
     // THEN
     expect(result).toEqual(repositoryResult);
+  });
+
+  it('should retrieve a limited list of orders based on pagination parameters', async () => {
+    // GIVEN
+    const page: number = 1;
+    const limit: number = 2;
+
+    const orders: Order[] = [
+      {
+        number: 1,
+        name: 'Teste',
+        description: 'Teste',
+        items: [{ id: '123', name: 'Teste', quantity: 1 }],
+        status: OrderStatus.RECEIVED,
+      },
+      {
+        number: 2,
+        name: 'Teste',
+        description: 'Teste',
+        items: [{ id: '456', name: 'Teste', quantity: 1 }],
+        status: OrderStatus.RECEIVED,
+      },
+      {
+        number: 3,
+        name: 'Teste',
+        description: 'Teste',
+        items: [{ id: '789', name: 'Teste', quantity: 1 }],
+        status: OrderStatus.RECEIVED,
+      },
+    ];
+
+    jest
+      .spyOn(ordersRepository, 'getPaginate')
+      .mockImplementation(async () => orders.slice(0, limit));
+
+    // WHEN
+    const result: Order[] = await ordersService.getPaginate(page, limit);
+
+    // THEN
+    expect(result.length).toBe(2);
   });
 
   it('should not find a order when order not exists', async () => {
