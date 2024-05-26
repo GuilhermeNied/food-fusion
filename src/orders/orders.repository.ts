@@ -6,7 +6,7 @@ import { OrderStatus } from './enum/OrderStatus';
 
 @Injectable()
 export class OrdersRepository {
-  constructor(private prismaService: PrismaService) { }
+  constructor(private prismaService: PrismaService) {}
   private orderStatusMapping = {
     [OrderStatus.RECEIVED]: PrismaOrderStatus.RECEIVED,
     [OrderStatus.DOING]: PrismaOrderStatus.DOING,
@@ -46,6 +46,7 @@ export class OrdersRepository {
         items: true,
       },
     });
+
     const parsedOrder: Order = {
       number: order.number,
       name: order.name,
