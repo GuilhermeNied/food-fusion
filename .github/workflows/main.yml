@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: 18.18.x
 
+      - name: Print DATABASE_URL
+        env:
+          DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL}}
+        run: echo $DATABASE_URL
+        
       - name: Install dependencies
         run: npm install
 
