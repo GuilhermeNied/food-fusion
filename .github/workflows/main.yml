@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Prisma Migrations
         env:
-          DATABASE_URL: postgresql://postgres_test:postgres_test@postgres:5433/test
+          DATABASE_URL: postgresql://postgres_test:postgres_test@postgres:5432/test
         run: npx prisma migrate deploy
 
       - name: Run tests
