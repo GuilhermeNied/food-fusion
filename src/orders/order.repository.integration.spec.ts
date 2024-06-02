@@ -21,7 +21,7 @@ describe.only('OrderRepository Integration Test', () => {
     await prismaService.$disconnect();
   });
 
-  it('should create an order', async () => {
+  it.only('should create an order', async () => {
     // GIVEN
     const randomNumber = Math.floor(Math.random() * 100);
     const order: Order = {
