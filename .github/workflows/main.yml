@@ -12,55 +12,29 @@ jobs:
 
     services:
       postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
+        image: postgres:latest
         env:
-          POSTGRES_USER: postgres_test
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASS }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
+          - 5433:5433
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 18.18.x
-
+          
       - name: Install dependencies
         run: npm install
-
-      - name: Initial wait for PostgreSQL
-        run: sleep 30
-
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h postgres -U postgres_test; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
-
-      - name: Verify PostgreSQL Connection
-        run: |
-          psql postgresql://postgres_test:postgres@postgres:5432/test -c '\l'
-
-      - name: Check PostgreSQL logs
-        run: docker logs $(docker ps -q -f name=postgres)
 
       - name: Setup Prisma
         run: npx prisma generate
 
       - name: Run Prisma Migrations
         env:
-          DATABASE_URL: postgresql://postgres_test:postgres_test@postgres:5432/test?schema=public
+          DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL}}
         run: npx prisma migrate deploy
 
       - name: Run tests
