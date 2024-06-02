@@ -12,18 +12,22 @@ jobs:
 
     services:
       postgres:
-        image: postgres:latest
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
         env:
           POSTGRES_USER: postgres_test
-          POSTGRES_PASSWORD: postgres_test
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test
-        ports:
-          - 5432:5432
+        # Set health checks to wait until postgres has started
         options: >-
-          --health-cmd="pg_isready -U postgres_test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
 
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +50,7 @@ jobs:
 
       - name: Verify PostgreSQL Connection
         run: |
-          psql postgresql://postgres_test:postgres_test@postgres:5432/test -c '\l'
+          psql postgresql://postgres_test:postgres@postgres:5432/test -c '\l'
 
       - name: Check PostgreSQL logs
         run: docker logs $(docker ps -q -f name=postgres)
