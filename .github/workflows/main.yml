@@ -14,9 +14,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASS }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: postgres_test
+          POSTGRES_PASSWORD: postgres_test
+          POSTGRES_DB: test
         ports:
           - 5433:5433
 
@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Prisma Migrations
         env:
-          DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL}}
+          DATABASE_URL: postgresql://postgres_test:postgres_test@postgres:5433/test
         run: npx prisma migrate deploy
 
       - name: Run tests
