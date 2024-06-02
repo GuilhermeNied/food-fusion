@@ -34,13 +34,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Setup Prisma
-        run: npx prisma generate
-
-      - name: Run Prisma Migrations
-        env:
-          DATABASE_URL: postgresql://postgres_test:postgres_test@postgres:5432/test?schema=public
-        run: npx prisma migrate deploy
-
-      - name: Run tests
-        run: npm test
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h postgres -U postgres_test; do
+            echo "Waiting for
