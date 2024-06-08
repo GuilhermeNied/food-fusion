@@ -4,7 +4,7 @@ import { OrderStatus } from './enum/OrderStatus';
 import { OrdersRepository } from './orders.repository';
 import { OrderStatus as PrismaOrderStatus } from '@prisma/client';
 
-describe('OrderRepository Integration Test', () => {
+describe.only('OrderRepository Integration Test', () => {
   let prismaService: PrismaService;
   let orderRepository: OrdersRepository;
   async function createAnOrder() {
@@ -120,4 +120,44 @@ describe('OrderRepository Integration Test', () => {
     // THEN
     expect(exists).not.toBeTruthy();
   });
+
+  it('should update an order', async () => {
+    // GIVEN
+    const orderNumberToUpdate = 1;
+    const orderToUpdate: Partial<Order> = {
+      name: 'TesteUpdate',
+      items: [{ id: '123', name: 'TesteUpdate', quantity: 5 }],
+      description: 'Testing update',
+    };
+    await createAnOrder();
+
+    // WHEN
+    await orderRepository.update(orderNumberToUpdate, orderToUpdate);
+
+    const updatedOrder =
+      await orderRepository.findByNumber(orderNumberToUpdate);
+
+    // THEN
+    expect(updatedOrder.name).toEqual(orderToUpdate.name);
+    expect(updatedOrder.description).toEqual(orderToUpdate.description);
+    expect(updatedOrder.items[1].quantity).toEqual(
+      orderToUpdate.items[0].quantity,
+    );
+  });
+
+  it.only('should delete an order', async () => {
+    // GIVEN
+    const orderNumberToDelete = 1;
+
+    await createAnOrder();
+
+    // WHEN
+    await orderRepository.delete(orderNumberToDelete);
+
+    // THEN
+    const exists = await orderRepository.exists(orderNumberToDelete);
+    expect(exists).not.toBeTruthy();
+  });
+
+  // it('should get paginated orders', async () => { });
 });
