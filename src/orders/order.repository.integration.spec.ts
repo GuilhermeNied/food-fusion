@@ -13,7 +13,7 @@ describe.only('OrderRepository Integration Test', () => {
         number: 1,
         name: 'Test name',
         description: 'Test description',
-        status: PrismaOrderStatus.RECEIVED, // Use Prisma's generated enum
+        status: PrismaOrderStatus.RECEIVED,
         items: {
           createMany: {
             data: [
@@ -34,6 +34,38 @@ describe.only('OrderRepository Integration Test', () => {
     });
   }
 
+  async function createFiveOrders() {
+    const createdOrders = [];
+    for (let index = 1; index <= 5; index++) {
+      const order = await prismaService.order.create({
+        data: {
+          number: index,
+          name: `Test name ${index}`,
+          description: `Test description ${index}`,
+          status: PrismaOrderStatus.RECEIVED,
+          items: {
+            createMany: {
+              data: [
+                {
+                  id: `${index}123`,
+                  name: 'Teste',
+                  quantity: 1,
+                },
+                {
+                  id: `${index}456`,
+                  name: 'Teste2',
+                  quantity: 1,
+                },
+              ],
+            },
+          },
+        },
+      });
+      createdOrders.push(order);
+    }
+    return createdOrders;
+  }
+
   beforeAll(async () => {
     prismaService = new PrismaService();
     orderRepository = new OrdersRepository(prismaService);
@@ -48,7 +80,7 @@ describe.only('OrderRepository Integration Test', () => {
     await prismaService.$disconnect();
   });
 
-  it('should create an order', async () => {
+  it('should successfully create an order', async () => {
     // GIVEN
     const randomNumber = Math.floor(Math.random() * 100);
     const order: Order = {
@@ -84,7 +116,7 @@ describe.only('OrderRepository Integration Test', () => {
     expect(createdOrder.name).toEqual(order.name);
   });
 
-  it('should find a order', async () => {
+  it('should accurately find an order by its number', async () => {
     // GIVEN
     const orderNumber = 1;
     const createdOrder = await createAnOrder();
@@ -98,7 +130,7 @@ describe.only('OrderRepository Integration Test', () => {
     expect(findedOrder.status).toEqual(createdOrder.status.toLowerCase());
   });
 
-  it('should return order exists', async () => {
+  it('should confirm existence of an order', async () => {
     // GIVEN
     const orderNumber = 1;
     await createAnOrder();
@@ -110,7 +142,7 @@ describe.only('OrderRepository Integration Test', () => {
     expect(exists).toBeTruthy();
   });
 
-  it('should return order not exists', async () => {
+  it('should confirm non-existence of an order', async () => {
     // GIVEN
     const orderNumber = 1;
 
@@ -121,7 +153,7 @@ describe.only('OrderRepository Integration Test', () => {
     expect(exists).not.toBeTruthy();
   });
 
-  it('should update an order', async () => {
+  it('should successfully update an existing order', async () => {
     // GIVEN
     const orderNumberToUpdate = 1;
     const orderToUpdate: Partial<Order> = {
@@ -145,7 +177,7 @@ describe.only('OrderRepository Integration Test', () => {
     );
   });
 
-  it.only('should delete an order', async () => {
+  it('should successfully delete an existing order', async () => {
     // GIVEN
     const orderNumberToDelete = 1;
 
@@ -159,5 +191,16 @@ describe.only('OrderRepository Integration Test', () => {
     expect(exists).not.toBeTruthy();
   });
 
-  // it('should get paginated orders', async () => { });
+  it('should retrieve a specific number of orders with pagination', async () => {
+    // GIVEN
+    const skip = 0;
+    const limit = 4;
+    await createFiveOrders();
+
+    // WHEN
+    const paginatedOrders = await orderRepository.getPaginate(skip, limit);
+
+    // THEN
+    expect(paginatedOrders.length).toEqual(4);
+  });
 });
