@@ -27,6 +27,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18.18.x
@@ -37,10 +38,17 @@ jobs:
       - name: Setup Prisma
         run: npx prisma generate
 
-      - name: Run Prisma Migrations
+      - name: Apply Prisma Migrations
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/foodapp
         run: npx prisma migrate deploy
+
+      - name: Verify Tables
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/foodapp
+        run: |
+          sudo apt-get install postgresql-client
+          PGPASSWORD=postgres psql -h localhost -U postgres -d foodapp -c '\dt'
 
       - name: Run tests
         env:
