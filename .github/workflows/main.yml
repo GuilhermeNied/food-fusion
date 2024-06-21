@@ -18,7 +18,12 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASS }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
-          - 5433:5433
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U ${{ secrets.POSTGRES_USER }}" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
 
     steps:
       - uses: actions/checkout@v3
@@ -34,8 +39,10 @@ jobs:
 
       - name: Run Prisma Migrations
         env:
-          DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL}}
+          DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASS }}@localhost:5432/${{ secrets.POSTGRES_DB }}
         run: npx prisma migrate deploy
 
       - name: Run tests
+        env:
+          DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASS }}@localhost:5432/${{ secrets.POSTGRES_DB }}
         run: npm test
