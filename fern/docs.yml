@@ -1,0 +1,8 @@
+instances:
+  - url: https://guilherme-nied.docs.buildwithfern.com
+title: guilherme-nied | Documentation
+navigation:
+  - api: API Reference
+colors:
+  accentPrimary: '#ffffff'
+  background: '#000000'
