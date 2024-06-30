@@ -41,7 +41,7 @@ The idea behind this project was to create a simple API to utilize knowledge in 
     ```
 
 
-## 🎯 Running the Appliocation
+## 🎯 Running the Application
 1. Start the application
     ```bash
     npm run start
